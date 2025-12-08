@@ -1,8 +1,18 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import type { FC, FormEvent } from 'react';
-import { Calendar, Clock, Eye, Filter, Search, Sparkles, Tag, ThumbsUp } from 'lucide-react';
+import Image from 'next/image';
+import {
+  Calendar,
+  Clock,
+  Eye,
+  Filter,
+  Search,
+  Sparkles,
+  Tag,
+  ThumbsUp,
+} from 'lucide-react';
 import type { Post } from '@/types/post';
 
 interface BlogDashboardProps {
@@ -30,93 +40,102 @@ const sortPosts = (posts: Post[], sortKey: SortKey): Post[] => {
 };
 
 const formatDate = (value: string): string =>
-  new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(
-    new Date(value)
-  );
+  new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value));
 
-const PostCard: FC<{ post: Post; view: 'grid' | 'list' }> = ({ post, view }) => (
-  <article
-    className={`group relative flex ${
-      view === 'grid' ? 'flex-col' : 'flex-row'
-    } overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md focus-within:-translate-y-1 focus-within:shadow-md`}
-  >
-    {post.coverUrl ? (
+interface PostCardProps {
+  post: Post;
+  view: 'grid' | 'list';
+}
+
+const PostCard: FC<PostCardProps> = memo(function PostCard({ post, view }) {
+  return (
+    <article
+      className={`group relative flex ${
+        view === 'grid' ? 'flex-col' : 'flex-row'
+      } overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md focus-within:-translate-y-1 focus-within:shadow-md`}
+    >
       <div
         className={`${
           view === 'grid' ? 'h-44 w-full' : 'h-full w-44'
-        } flex-shrink-0 bg-gray-100`}
-        aria-hidden="true"
-        style={{
-          backgroundImage: `url(${post.coverUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
-    ) : (
-      <div
-        className={`${
-          view === 'grid' ? 'h-44 w-full' : 'h-full w-44'
-        } flex-shrink-0 bg-gradient-to-br from-blue-50 to-indigo-50`}
-        aria-hidden="true"
-      />
-    )}
-    <div className="flex flex-1 flex-col gap-3 p-5">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-blue-600">
-        {post.featured && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1">
-            <Sparkles className="h-3 w-3" aria-hidden="true" />
-            Featured
-          </span>
+        } relative flex-shrink-0 overflow-hidden bg-gray-100`}
+      >
+        {post.coverUrl ? (
+          <Image
+            src={post.coverUrl}
+            alt={`Cover image for ${post.title}`}
+            fill
+            sizes={view === 'grid' ? '(min-width: 768px) 50vw, 100vw' : '176px'}
+            className="object-cover"
+            priority={post.featured}
+          />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-blue-50 to-indigo-50" aria-hidden="true" />
         )}
-        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-gray-700">
-          <Tag className="h-3 w-3" aria-hidden="true" />
-          {post.tags[0] ?? 'General'}
-        </span>
       </div>
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 transition-colors duration-200 group-hover:text-blue-700">
-          {post.title}
-        </h3>
-        <p className="mt-1 line-clamp-2 text-sm text-gray-600">{post.excerpt}</p>
-      </div>
-      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1">
-          <Calendar className="h-4 w-4" aria-hidden="true" />
-          {formatDate(post.createdAt)}
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1">
-          <Clock className="h-4 w-4" aria-hidden="true" />
-          {post.readingMinutes} min read
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1">
-          <Eye className="h-4 w-4" aria-hidden="true" />
-          {post.views.toLocaleString()} views
-        </span>
-      </div>
-      <div className="mt-auto flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-700">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 text-center text-sm font-semibold leading-8 text-white">
-            {post.author.slice(0, 2).toUpperCase()}
-          </div>
-          <span className="font-medium">{post.author}</span>
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-blue-600">
+          {post.featured && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1">
+              <Sparkles className="h-3 w-3" aria-hidden="true" />
+              Featured
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-gray-700">
+            <Tag className="h-3 w-3" aria-hidden="true" />
+            {post.tags[0] ?? 'General'}
+          </span>
         </div>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-800 transition-all duration-200 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <ThumbsUp className="h-4 w-4" aria-hidden="true" />
-          Appreciate
-        </button>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 transition-colors duration-200 group-hover:text-blue-700">
+            {post.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-gray-600">{post.excerpt}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1">
+            <Calendar className="h-4 w-4" aria-hidden="true" />
+            {formatDate(post.createdAt)}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1">
+            <Clock className="h-4 w-4" aria-hidden="true" />
+            {post.readingMinutes} min read
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1">
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            {post.views.toLocaleString()} views
+          </span>
+        </div>
+        <div className="mt-auto flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-gray-700">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 text-center text-sm font-semibold leading-8 text-white">
+              {post.author.slice(0, 2).toUpperCase()}
+            </div>
+            <span className="font-medium">{post.author}</span>
+          </div>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-800 transition-all duration-200 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            <ThumbsUp className="h-4 w-4" aria-hidden="true" />
+            Appreciate
+          </button>
+        </div>
       </div>
-    </div>
-  </article>
-);
+    </article>
+  );
+});
 
-const StatsCard: FC<{ label: string; value: string; icon: React.ReactNode }> = ({
-  label,
-  value,
-  icon,
-}) => (
+interface StatsCardProps {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+}
+
+const StatsCard: FC<StatsCardProps> = ({ label, value, icon }) => (
   <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
       {icon}
@@ -150,6 +169,7 @@ const Newsletter: FC = () => {
 
   return (
     <section
+      id="newsletter"
       aria-label="Subscribe to newsletter"
       className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
     >
@@ -179,6 +199,7 @@ const Newsletter: FC = () => {
             required
             className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64"
             placeholder="you@example.com"
+            aria-invalid={status === 'error'}
           />
           <button
             type="submit"
