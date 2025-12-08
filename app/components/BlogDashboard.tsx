@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useCallback, useMemo, useState } from 'react';
-import type { FC, FormEvent } from 'react';
+import type { FC, FormEvent, ReactNode } from 'react';
 import Image from 'next/image';
 import {
   Calendar,
@@ -132,7 +132,7 @@ const PostCard: FC<PostCardProps> = memo(function PostCard({ post, view }) {
 interface StatsCardProps {
   label: string;
   value: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }
 
 const StatsCard: FC<StatsCardProps> = ({ label, value, icon }) => (
