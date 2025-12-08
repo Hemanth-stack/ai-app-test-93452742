@@ -1,7 +1,7 @@
 'use client';
 
-import BlogDashboard from './components/BlogDashboard';
+import metadata from './components/metadata';
 
 export default function Home() {
-  return <BlogDashboard />;
+  return <metadata />;
 }
