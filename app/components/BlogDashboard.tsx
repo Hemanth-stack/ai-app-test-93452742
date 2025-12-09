@@ -3,16 +3,7 @@
 import { memo, useCallback, useMemo, useState } from 'react';
 import type { FC, FormEvent, ReactNode } from 'react';
 import Image from 'next/image';
-import {
-  Calendar,
-  Clock,
-  Eye,
-  Filter,
-  Search,
-  Sparkles,
-  Tag,
-  ThumbsUp,
-} from 'lucide-react';
+import { Calendar, Clock, Eye, Filter, Search, Sparkles, Tag, ThumbsUp } from 'lucide-react';
 import type { Post } from '@/types/post';
 
 interface BlogDashboardProps {
@@ -40,11 +31,9 @@ const sortPosts = (posts: Post[], sortKey: SortKey): Post[] => {
 };
 
 const formatDate = (value: string): string =>
-  new Intl.DateTimeFormat('en', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(value));
+  new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(
+    new Date(value)
+  );
 
 interface PostCardProps {
   post: Post;
@@ -73,7 +62,10 @@ const PostCard: FC<PostCardProps> = memo(function PostCard({ post, view }) {
             priority={post.featured}
           />
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-blue-50 to-indigo-50" aria-hidden="true" />
+          <div
+            className="h-full w-full bg-gradient-to-br from-blue-50 to-indigo-50"
+            aria-hidden="true"
+          />
         )}
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
@@ -212,9 +204,7 @@ const Newsletter: FC = () => {
       {status !== 'idle' && (
         <p
           role="status"
-          className={`mt-3 text-sm ${
-            status === 'success' ? 'text-green-700' : 'text-red-700'
-          }`}
+          className={`mt-3 text-sm ${status === 'success' ? 'text-green-700' : 'text-red-700'}`}
         >
           {message}
         </p>

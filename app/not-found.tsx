@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export default function NotFound() {
+export default function NotFound(): JSX.Element {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
       <div className="rounded-2xl border border-gray-200 bg-white px-8 py-10 shadow-md">
