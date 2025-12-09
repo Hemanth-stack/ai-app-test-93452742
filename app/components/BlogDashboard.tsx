@@ -12,28 +12,28 @@ interface BlogDashboardProps {
 
 type SortKey = 'newest' | 'oldest' | 'popular' | 'reading';
 
-const sortPosts = (posts: Post[], sortKey: SortKey): Post[] => {
-  switch (sortKey) {
-    case 'oldest':
-      return [...posts].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
-    case 'popular':
-      return [...posts].sort((a, b) => b.views - a.views);
-    case 'reading':
-      return [...posts].sort((a, b) => a.readingMinutes - b.readingMinutes);
-    case 'newest':
-    default:
-      return [...posts].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-  }
-};
-
 const formatDate = (value: string): string =>
   new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(
     new Date(value)
   );
+
+const sortPosts = (items: Post[], sortKey: SortKey): Post[] => {
+  switch (sortKey) {
+    case 'oldest':
+      return [...items].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+    case 'popular':
+      return [...items].sort((a, b) => b.views - a.views);
+    case 'reading':
+      return [...items].sort((a, b) => a.readingMinutes - b.readingMinutes);
+    case 'newest':
+    default:
+      return [...items].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+  }
+};
 
 interface PostCardProps {
   post: Post;
@@ -214,6 +214,7 @@ const Newsletter: FC = () => {
 };
 
 const BlogDashboard: FC<BlogDashboardProps> = ({ posts }) => {
+  const safePosts = posts ?? [];
   const [query, setQuery] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('newest');
@@ -222,12 +223,12 @@ const BlogDashboard: FC<BlogDashboardProps> = ({ posts }) => {
 
   const availableTags = useMemo<string[]>(() => {
     const tags = new Set<string>();
-    posts.forEach((post) => post.tags.forEach((tag) => tags.add(tag)));
+    safePosts.forEach((post) => post.tags.forEach((tag) => tags.add(tag)));
     return ['all', ...Array.from(tags)];
-  }, [posts]);
+  }, [safePosts]);
 
   const filteredPosts = useMemo<Post[]>(() => {
-    const byQuery = posts.filter((post) => {
+    const byQuery = safePosts.filter((post) => {
       const text = `${post.title} ${post.excerpt} ${post.tags.join(' ')}`.toLowerCase();
       return text.includes(query.toLowerCase());
     });
@@ -237,18 +238,18 @@ const BlogDashboard: FC<BlogDashboardProps> = ({ posts }) => {
         : byQuery.filter((post) => post.tags.includes(selectedTag));
     const byFeatured = onlyFeatured ? byTag.filter((post) => post.featured) : byTag;
     return sortPosts(byFeatured, sortKey);
-  }, [posts, query, selectedTag, onlyFeatured, sortKey]);
+  }, [safePosts, query, selectedTag, onlyFeatured, sortKey]);
 
   const stats = useMemo(
     () => ({
-      total: posts.length,
-      featured: posts.filter((post) => post.featured).length,
-      totalViews: posts.reduce((acc, post) => acc + post.views, 0),
-      avgRead: posts.length
-        ? (posts.reduce((acc, post) => acc + post.readingMinutes, 0) / posts.length).toFixed(1)
+      total: safePosts.length,
+      featured: safePosts.filter((post) => post.featured).length,
+      totalViews: safePosts.reduce((acc, post) => acc + post.views, 0),
+      avgRead: safePosts.length
+        ? (safePosts.reduce((acc, post) => acc + post.readingMinutes, 0) / safePosts.length).toFixed(1)
         : '0',
     }),
-    [posts]
+    [safePosts]
   );
 
   return (
